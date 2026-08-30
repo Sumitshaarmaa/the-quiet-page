@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Genre {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+
+  posts       Post[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  type        String
+  excerpt     String?
+  content     String
+
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+
+  genreId     String
+  genre       Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  comments    Comment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  name      String?
+  content   String
+  approved  Boolean  @default(true)
+
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
