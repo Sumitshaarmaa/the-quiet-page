@@ -1,5 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { prisma } from "@/lib/prisma";
 import Comments from "@/app/components/Comments";
@@ -9,6 +10,56 @@ type Props = {
     slug: string;
   }>;
 };
+
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const { slug } = await params;
+
+  const post = await prisma.post.findFirst({
+    where: {
+      slug,
+      published: true,
+    },
+    select: {
+      title: true,
+      excerpt: true,
+      slug: true,
+    },
+  });
+
+  if (!post) {
+    return {
+      title: "Article Not Found",
+    };
+  }
+
+  const description =
+    post.excerpt ||
+    `Read "${post.title}" on The Quiet Page.`;
+
+  return {
+    title: post.title,
+    description,
+
+    alternates: {
+      canonical: `/post/${post.slug}`,
+    },
+
+    openGraph: {
+      title: post.title,
+      description,
+      url: `/post/${post.slug}`,
+      siteName: "The Quiet Page",
+      type: "article",
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 function formatDate(date: Date | null) {
   if (!date) return "";

@@ -61,3 +61,4 @@ migrate-sqlite-to-neon.ts
 .claude/
 .windsurf/
 skills-lock.json
+.vercel
