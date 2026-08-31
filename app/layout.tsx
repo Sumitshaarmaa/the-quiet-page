@@ -23,6 +23,10 @@ export const metadata: Metadata = {
   description:
     "A quiet space for reflections, stories, fragments, notes, and things worth sitting with.",
 
+  verification: {
+    google: "k6HFJBfV9k3XOFTSr6c-nJmJFIENDK69-c-kYHRhDIA",
+  },
+
   openGraph: {
     title: "The Quiet Page",
     description:
