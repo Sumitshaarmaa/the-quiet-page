@@ -71,6 +71,14 @@ function formatDate(date: Date | null) {
   }).format(date);
 }
 
+function getImageUrl(imagePath: string | null) {
+  if (!imagePath) {
+    return null;
+  }
+
+  return `/api/images?pathname=${encodeURIComponent(imagePath)}`;
+}
+
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
 
@@ -93,12 +101,15 @@ export default async function PostPage({ params }: Props) {
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
 
+  const imageUrl = getImageUrl(post.imageUrl);
+
   return (
     <main className="min-h-screen bg-[#f5f3ed] text-[#272622]">
 
       {/* HEADER */}
 
       <header className="sticky top-0 z-50 border-b border-[#dedbd2] bg-[#f5f3ed]/95 backdrop-blur-md">
+
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
           <Link
@@ -116,6 +127,7 @@ export default async function PostPage({ params }: Props) {
           </Link>
 
         </div>
+
       </header>
 
 
@@ -150,6 +162,34 @@ export default async function PostPage({ params }: Props) {
         )}
 
       </section>
+
+
+      {/* FEATURE IMAGE */}
+
+      {imageUrl && (
+        <figure className="mx-auto max-w-6xl px-6 pb-20 lg:px-10">
+
+          <div className="overflow-hidden border border-[#dedbd2] bg-[#eeece5]">
+
+            <img
+              src={imageUrl}
+              alt={
+                post.imageAlt ||
+                post.title
+              }
+              className="block max-h-[750px] w-full object-contain"
+            />
+
+          </div>
+
+          {post.imageCaption && (
+            <figcaption className="mx-auto mt-4 max-w-3xl text-center text-xs leading-6 text-[#928d82]">
+              {post.imageCaption}
+            </figcaption>
+          )}
+
+        </figure>
+      )}
 
 
       {/* ARTICLE CONTENT */}

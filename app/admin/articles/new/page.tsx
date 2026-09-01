@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Genre = {
   id: string;
@@ -20,11 +20,20 @@ export default function NewArticlePage() {
   const [type, setType] = useState("REFLECTION");
   const [featured, setFeatured] = useState(false);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
+  const [imageCaption, setImageCaption] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [saving, setSaving] = useState(false);
   const [loadingGenres, setLoadingGenres] = useState(true);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadGenres() {
@@ -33,7 +42,6 @@ export default function NewArticlePage() {
         setError("");
 
         const response = await fetch("/api/admin/articles");
-
         const data = await response.json();
 
         if (!response.ok) {
@@ -63,6 +71,118 @@ export default function NewArticlePage() {
     loadGenres();
   }, []);
 
+  function handleImageChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    setError("");
+
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setError(
+        "Unsupported image type. Please use JPG, PNG, WebP, or GIF."
+      );
+
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image must be 10 MB or smaller.");
+
+      event.target.value = "";
+      return;
+    }
+
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setImageFile(file);
+    setImagePreview(previewUrl);
+    setImageUrl("");
+  }
+
+  function removeImage() {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setImageFile(null);
+    setImagePreview("");
+    setImageUrl("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
+  async function uploadImage() {
+    if (!imageFile) {
+      return "";
+    }
+
+    setUploadingImage(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", imageFile);
+
+      const response = await fetch(
+        "/api/admin/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Unable to upload image."
+        );
+      }
+
+      const pathname = data.pathname;
+
+      if (!pathname) {
+        throw new Error(
+          "Image uploaded but no image path was returned."
+        );
+      }
+
+      setImageUrl(pathname);
+
+      return pathname;
+    } catch (error) {
+      console.error("Upload image error:", error);
+
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Unable to upload image."
+      );
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
   async function saveArticle(published: boolean) {
     setError("");
     setSuccess("");
@@ -85,21 +205,34 @@ export default function NewArticlePage() {
     setSaving(true);
 
     try {
-      const response = await fetch("/api/admin/articles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          genreId,
-          title: title.trim(),
-          excerpt: excerpt.trim(),
-          content: content.trim(),
-          type,
-          featured,
-          published,
-        }),
-      });
+      let finalImageUrl = imageUrl;
+
+      if (imageFile && !finalImageUrl) {
+        finalImageUrl = await uploadImage();
+      }
+
+      const response = await fetch(
+        "/api/admin/articles",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            genreId,
+            title: title.trim(),
+            excerpt: excerpt.trim(),
+            content: content.trim(),
+            type,
+            featured,
+            published,
+
+            imageUrl: finalImageUrl,
+            imageAlt: imageAlt.trim(),
+            imageCaption: imageCaption.trim(),
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -159,33 +292,29 @@ export default function NewArticlePage() {
       </header>
 
 
-      {/* MAIN */}
+      {/* PAGE */}
 
-      <section className="mx-auto max-w-5xl px-6 py-16 lg:px-10 lg:py-24">
+      <div className="mx-auto max-w-5xl px-6 py-16 lg:px-10">
 
-        {/* INTRO */}
+        <div className="mb-12">
 
-        <div className="border-b border-[#d9d6cc] pb-12">
-
-          <p className="mb-5 text-[10px] uppercase tracking-[0.35em] text-[#928d82]">
-            The notebook
+          <p className="text-[9px] uppercase tracking-[0.3em] text-[#928d82]">
+            New writing
           </p>
 
-          <h1 className="font-serif text-5xl tracking-[-0.04em] md:text-6xl">
-            Write something.
+          <h1 className="mt-4 font-serif text-5xl tracking-[-0.04em] md:text-6xl">
+            Write something quietly.
           </h1>
 
           <p className="mt-5 max-w-xl text-sm leading-7 text-[#77736b]">
-            Put a thought into words. You can save it as a
-            draft or publish it when it is ready.
+            Create a reflection, story, idea, observation, or note.
           </p>
 
         </div>
 
 
-        {/* FORM */}
+        <div className="space-y-10">
 
-        <div className="mt-12 space-y-10">
 
           {/* TITLE */}
 
@@ -205,9 +334,8 @@ export default function NewArticlePage() {
               onChange={(event) =>
                 setTitle(event.target.value)
               }
-              placeholder="Give this thought a name..."
-              maxLength={200}
-              className="w-full border-b border-[#cfcac0] bg-transparent px-1 py-4 font-serif text-3xl outline-none placeholder:text-[#b0aca2] focus:border-[#272622] md:text-4xl"
+              placeholder="Give your writing a title..."
+              className="w-full border-b border-[#cfcac0] bg-transparent px-1 py-4 font-serif text-3xl outline-none placeholder:text-[#aaa59a] focus:border-[#272622] md:text-4xl"
             />
 
           </div>
@@ -235,7 +363,7 @@ export default function NewArticlePage() {
                   setGenreId(event.target.value)
                 }
                 disabled={loadingGenres}
-                className="w-full border-b border-[#cfcac0] bg-transparent px-1 py-4 text-sm outline-none focus:border-[#272622] disabled:opacity-50"
+                className="w-full border-b border-[#cfcac0] bg-transparent px-1 py-4 text-sm outline-none focus:border-[#272622]"
               >
                 {loadingGenres ? (
                   <option value="">
@@ -361,6 +489,164 @@ export default function NewArticlePage() {
           </div>
 
 
+          {/* IMAGE */}
+
+          <div className="border-t border-[#dedbd2] pt-10">
+
+            <div className="mb-6">
+
+              <p className="text-[9px] uppercase tracking-[0.3em] text-[#928d82]">
+                Image
+              </p>
+
+              <p className="mt-2 text-xs text-[#aaa59a]">
+                Optional. JPG, PNG, WebP or GIF. Maximum 10 MB.
+              </p>
+
+            </div>
+
+
+            {imagePreview ? (
+
+              <div className="space-y-5">
+
+                <div className="overflow-hidden border border-[#dedbd2] bg-[#eeece5]">
+
+                  <img
+                    src={imagePreview}
+                    alt="Selected article image preview"
+                    className="max-h-[500px] w-full object-contain"
+                  />
+
+                </div>
+
+
+                <div className="flex flex-wrap items-center gap-4">
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      fileInputRef.current?.click()
+                    }
+                    className="border border-[#aaa59a] px-5 py-3 text-[10px] uppercase tracking-[0.22em] transition-colors hover:bg-[#272622] hover:text-[#f7f5ed]"
+                  >
+                    Change image
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="px-2 py-3 text-[10px] uppercase tracking-[0.22em] text-[#928d82] transition-colors hover:text-[#272622]"
+                  >
+                    Remove
+                  </button>
+
+                </div>
+
+              </div>
+
+            ) : (
+
+              <button
+                type="button"
+                onClick={() =>
+                  fileInputRef.current?.click()
+                }
+                className="flex min-h-48 w-full items-center justify-center border border-dashed border-[#c9c5ba] bg-[#eeece5] px-6 py-10 text-center transition-colors hover:border-[#928d82] hover:bg-[#e9e7df]"
+              >
+
+                <span>
+
+                  <span className="block font-serif text-2xl">
+                    Choose an image
+                  </span>
+
+                  <span className="mt-2 block text-[10px] uppercase tracking-[0.2em] text-[#928d82]">
+                    Optional
+                  </span>
+
+                </span>
+
+              </button>
+
+            )}
+
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+
+
+            {imagePreview && (
+
+              <div className="mt-8 space-y-6">
+
+                {/* ALT */}
+
+                <div>
+
+                  <label
+                    htmlFor="imageAlt"
+                    className="mb-3 block text-[9px] uppercase tracking-[0.3em] text-[#928d82]"
+                  >
+                    Image alt text
+                  </label>
+
+                  <input
+                    id="imageAlt"
+                    type="text"
+                    value={imageAlt}
+                    onChange={(event) =>
+                      setImageAlt(event.target.value)
+                    }
+                    maxLength={300}
+                    placeholder="Describe the image..."
+                    className="w-full border-b border-[#cfcac0] bg-transparent px-1 py-4 text-sm outline-none placeholder:text-[#aaa59a] focus:border-[#272622]"
+                  />
+
+                  <p className="mt-2 text-[10px] text-[#aaa59a]">
+                    A short description for accessibility.
+                  </p>
+
+                </div>
+
+
+                {/* CAPTION */}
+
+                <div>
+
+                  <label
+                    htmlFor="imageCaption"
+                    className="mb-3 block text-[9px] uppercase tracking-[0.3em] text-[#928d82]"
+                  >
+                    Image caption
+                  </label>
+
+                  <input
+                    id="imageCaption"
+                    type="text"
+                    value={imageCaption}
+                    onChange={(event) =>
+                      setImageCaption(event.target.value)
+                    }
+                    maxLength={500}
+                    placeholder="Optional caption..."
+                    className="w-full border-b border-[#cfcac0] bg-transparent px-1 py-4 text-sm outline-none placeholder:text-[#aaa59a] focus:border-[#272622]"
+                  />
+
+                </div>
+
+              </div>
+
+            )}
+
+          </div>
+
+
           {/* FEATURED */}
 
           <label className="flex cursor-pointer items-center gap-4 border-t border-[#dedbd2] pt-8">
@@ -423,25 +709,41 @@ export default function NewArticlePage() {
 
               <button
                 type="button"
-                disabled={saving || loadingGenres}
-                onClick={() => saveArticle(false)}
-                className="border border-[#aaa59a] px-6 py-4 text-[10px] uppercase tracking-[0.25em] transition-all hover:border-[#272622] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={
+                  saving ||
+                  uploadingImage ||
+                  loadingGenres
+                }
+                onClick={() =>
+                  saveArticle(false)
+                }
+                className="border border-[#aaa59a] px-7 py-4 text-[10px] uppercase tracking-[0.25em] transition-colors hover:bg-[#e9e7df] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {saving
-                  ? "Saving..."
-                  : "Save draft"}
+                {uploadingImage
+                  ? "Uploading image..."
+                  : saving
+                    ? "Saving..."
+                    : "Save draft"}
               </button>
 
 
               <button
                 type="button"
-                disabled={saving || loadingGenres}
-                onClick={() => saveArticle(true)}
-                className="border border-[#272622] bg-[#272622] px-7 py-4 text-[10px] uppercase tracking-[0.25em] text-[#f5f3ed] transition-all hover:bg-transparent hover:text-[#272622] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={
+                  saving ||
+                  uploadingImage ||
+                  loadingGenres
+                }
+                onClick={() =>
+                  saveArticle(true)
+                }
+                className="bg-[#272622] px-7 py-4 text-[10px] uppercase tracking-[0.25em] text-[#f7f5ed] transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {saving
-                  ? "Publishing..."
-                  : "Publish →"}
+                {uploadingImage
+                  ? "Uploading image..."
+                  : saving
+                    ? "Publishing..."
+                    : "Publish"}
               </button>
 
             </div>
@@ -450,26 +752,7 @@ export default function NewArticlePage() {
 
         </div>
 
-      </section>
-
-
-      {/* FOOTER */}
-
-      <footer className="border-t border-[#d9d6cc]">
-
-        <div className="mx-auto flex max-w-7xl justify-between px-6 py-8 text-[9px] uppercase tracking-[0.2em] text-[#aaa59a] lg:px-10">
-
-          <span>
-            The Quiet Page · Private
-          </span>
-
-          <span>
-            New writing
-          </span>
-
-        </div>
-
-      </footer>
+      </div>
 
     </main>
   );

@@ -17,9 +17,9 @@ async function getAuthenticatedAdmin() {
   return await verifySession(token);
 }
 
-/* ─────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────
    GET ARTICLES + GENRES
-   ───────────────────────────────────── */
+   ───────────────────────────────────────────────────────────── */
 
 export async function GET() {
   try {
@@ -73,9 +73,9 @@ export async function GET() {
   }
 }
 
-/* ─────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────
    CREATE ARTICLE
-   ───────────────────────────────────── */
+   ───────────────────────────────────────────────────────────── */
 
 export async function POST(request: Request) {
   try {
@@ -124,6 +124,23 @@ export async function POST(request: Request) {
 
     const featured =
       body.featured === true;
+
+    /* OPTIONAL IMAGE DATA */
+
+    const imageUrl =
+      typeof body.imageUrl === "string"
+        ? body.imageUrl.trim()
+        : "";
+
+    const imageAlt =
+      typeof body.imageAlt === "string"
+        ? body.imageAlt.trim()
+        : "";
+
+    const imageCaption =
+      typeof body.imageCaption === "string"
+        ? body.imageCaption.trim()
+        : "";
 
     if (!title) {
       return NextResponse.json(
@@ -211,9 +228,23 @@ export async function POST(request: Request) {
         type,
         excerpt: excerpt || null,
         content,
+
+        /*
+         * Image fields are optional.
+         *
+         * If no image is selected:
+         * imageUrl     = null
+         * imageAlt     = null
+         * imageCaption = null
+         */
+        imageUrl: imageUrl || null,
+        imageAlt: imageAlt || null,
+        imageCaption: imageCaption || null,
+
         featured,
         published,
         genreId: genre.id,
+
         publishedAt: published
           ? new Date()
           : null,

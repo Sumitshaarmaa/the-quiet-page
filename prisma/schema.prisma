@@ -28,24 +28,28 @@ model Genre {
 }
 
 model Post {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  type        String
-  excerpt     String?
-  content     String
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  type         String
+  excerpt      String?
+  content      String
 
-  featured    Boolean  @default(false)
-  published   Boolean  @default(true)
+  imageUrl     String?
+  imageAlt     String?
+  imageCaption String?
 
-  genreId     String
-  genre       Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  featured     Boolean  @default(false)
+  published    Boolean  @default(true)
 
-  comments    Comment[]
+  genreId      String
+  genre        Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  publishedAt DateTime?
+  comments     Comment[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  publishedAt  DateTime?
 }
 
 model Comment {

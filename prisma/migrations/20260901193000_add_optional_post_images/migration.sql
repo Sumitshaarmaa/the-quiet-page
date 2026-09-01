@@ -1,0 +1,3 @@
+ALTER TABLE "Post" ADD COLUMN "imageUrl" TEXT;
+ALTER TABLE "Post" ADD COLUMN "imageAlt" TEXT;
+ALTER TABLE "Post" ADD COLUMN "imageCaption" TEXT;
