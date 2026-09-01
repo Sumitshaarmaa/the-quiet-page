@@ -23,10 +23,6 @@ async function requireAdmin() {
   return await verifySession(token);
 }
 
-/* ─────────────────────────────────────
-   GET ONE ARTICLE
-   ───────────────────────────────────── */
-
 export async function GET(
   request: Request,
   { params }: Params
@@ -36,34 +32,22 @@ export async function GET(
 
     if (!session) {
       return NextResponse.json(
-        {
-          error: "Unauthorized.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Unauthorized." },
+        { status: 401 }
       );
     }
 
     const { id } = await params;
 
     const post = await prisma.post.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        genre: true,
-      },
+      where: { id },
+      include: { genre: true },
     });
 
     if (!post) {
       return NextResponse.json(
-        {
-          error: "Article not found.",
-        },
-        {
-          status: 404,
-        }
+        { error: "Article not found." },
+        { status: 404 }
       );
     }
 
@@ -75,19 +59,11 @@ export async function GET(
     console.error("Get article error:", error);
 
     return NextResponse.json(
-      {
-        error: "Unable to load article.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Unable to load article." },
+      { status: 500 }
     );
   }
 }
-
-/* ─────────────────────────────────────
-   UPDATE ARTICLE
-   ───────────────────────────────────── */
 
 export async function PUT(
   request: Request,
@@ -98,17 +74,12 @@ export async function PUT(
 
     if (!session) {
       return NextResponse.json(
-        {
-          error: "Unauthorized.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Unauthorized." },
+        { status: 401 }
       );
     }
 
     const { id } = await params;
-
     const body = await request.json();
 
     const title =
@@ -142,75 +113,64 @@ export async function PUT(
     const published =
       body.published === true;
 
+    const imageUrl =
+      typeof body.imageUrl === "string"
+        ? body.imageUrl.trim()
+        : "";
+
+    const imageAlt =
+      typeof body.imageAlt === "string"
+        ? body.imageAlt.trim()
+        : "";
+
+    const imageCaption =
+      typeof body.imageCaption === "string"
+        ? body.imageCaption.trim()
+        : "";
+
     if (!title) {
       return NextResponse.json(
-        {
-          error: "Title is required.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Title is required." },
+        { status: 400 }
       );
     }
 
     if (!content) {
       return NextResponse.json(
-        {
-          error: "Article content is required.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Article content is required." },
+        { status: 400 }
       );
     }
 
     if (!genreId) {
       return NextResponse.json(
-        {
-          error: "Please choose a genre.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Please choose a genre." },
+        { status: 400 }
       );
     }
 
     const genre = await prisma.genre.findUnique({
-      where: {
-        id: genreId,
-      },
+      where: { id: genreId },
     });
 
     if (!genre) {
       return NextResponse.json(
-        {
-          error: "Selected genre does not exist.",
-        },
-        {
-          status: 400,
-        }
+        { error: "Selected genre does not exist." },
+        { status: 400 }
       );
     }
 
     const existingPost =
       await prisma.post.findUnique({
-        where: {
-          id,
-        },
+        where: { id },
       });
 
     if (!existingPost) {
       return NextResponse.json(
-        {
-          error: "Article not found.",
-        },
-        {
-          status: 404,
-        }
+        { error: "Article not found." },
+        { status: 404 }
       );
     }
-
-    /* SLUG */
 
     const baseSlug =
       title
@@ -231,9 +191,7 @@ export async function PUT(
         await prisma.post.findFirst({
           where: {
             slug,
-            NOT: {
-              id,
-            },
+            NOT: { id },
           },
         })
       ) {
@@ -242,13 +200,9 @@ export async function PUT(
       }
     }
 
-    /* UPDATE */
-
     const updatedPost =
       await prisma.post.update({
-        where: {
-          id,
-        },
+        where: { id },
 
         data: {
           title,
@@ -259,6 +213,10 @@ export async function PUT(
           featured,
           published,
           genreId: genre.id,
+
+          imageUrl: imageUrl || null,
+          imageAlt: imageAlt || null,
+          imageCaption: imageCaption || null,
 
           publishedAt: published
             ? existingPost.publishedAt ??
@@ -279,19 +237,11 @@ export async function PUT(
     console.error("Update article error:", error);
 
     return NextResponse.json(
-      {
-        error: "Unable to update article.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Unable to update article." },
+      { status: 500 }
     );
   }
 }
-
-/* ─────────────────────────────────────
-   DELETE ARTICLE
-   ───────────────────────────────────── */
 
 export async function DELETE(
   request: Request,
@@ -302,38 +252,26 @@ export async function DELETE(
 
     if (!session) {
       return NextResponse.json(
-        {
-          error: "Unauthorized.",
-        },
-        {
-          status: 401,
-        }
+        { error: "Unauthorized." },
+        { status: 401 }
       );
     }
 
     const { id } = await params;
 
     const post = await prisma.post.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     if (!post) {
       return NextResponse.json(
-        {
-          error: "Article not found.",
-        },
-        {
-          status: 404,
-        }
+        { error: "Article not found." },
+        { status: 404 }
       );
     }
 
     await prisma.post.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     return NextResponse.json({
@@ -343,12 +281,8 @@ export async function DELETE(
     console.error("Delete article error:", error);
 
     return NextResponse.json(
-      {
-        error: "Unable to delete article.",
-      },
-      {
-        status: 500,
-      }
+      { error: "Unable to delete article." },
+      { status: 500 }
     );
   }
 }

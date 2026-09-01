@@ -1,16 +1,33 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { get } from "@vercel/blob";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const pathname = url.searchParams.get("pathname");
+    const value = url.searchParams.get("pathname");
 
-    if (!pathname) {
+    if (!value) {
       return NextResponse.json(
         { error: "Image pathname is required." },
         { status: 400 }
       );
+    }
+
+    let pathname = value;
+
+    // Accept either:
+    // articles/abc.jpg
+    // OR a full Vercel Blob URL.
+    if (pathname.startsWith("http://") || pathname.startsWith("https://")) {
+      try {
+        const blobUrl = new URL(pathname);
+        pathname = blobUrl.pathname.replace(/^\/+/, "");
+      } catch {
+        return NextResponse.json(
+          { error: "Invalid image URL." },
+          { status: 400 }
+        );
+      }
     }
 
     if (!pathname.startsWith("articles/")) {
@@ -33,8 +50,10 @@ export async function GET(request: Request) {
 
     return new Response(result.stream, {
       headers: {
-        "Content-Type": result.blob.contentType,
-        "Cache-Control": "public, max-age=31536000, immutable",
+        "Content-Type":
+          result.blob.contentType || "application/octet-stream",
+        "Cache-Control":
+          "public, max-age=31536000, immutable",
       },
     });
   } catch (error) {

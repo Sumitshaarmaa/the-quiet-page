@@ -169,7 +169,7 @@ export default async function PostPage({ params }: Props) {
       {imageUrl && (
         <figure className="mx-auto max-w-6xl px-6 pb-20 lg:px-10">
 
-          <div className="overflow-hidden border border-[#dedbd2] bg-[#eeece5]">
+          <div className="flex w-full justify-center">
 
             <img
               src={imageUrl}
@@ -177,7 +177,7 @@ export default async function PostPage({ params }: Props) {
                 post.imageAlt ||
                 post.title
               }
-              className="block max-h-[750px] w-full object-contain"
+              className="mx-auto block h-auto w-auto max-w-full"
             />
 
           </div>
@@ -243,3 +243,9 @@ export default async function PostPage({ params }: Props) {
     </main>
   );
 }
+
+
+
+
+
+

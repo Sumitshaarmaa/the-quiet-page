@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type Genre = {
@@ -22,6 +22,9 @@ type Article = {
   published: boolean;
   genreId: string;
   genre: Genre;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  imageCaption: string | null;
 };
 
 export default function EditArticlePage() {
@@ -40,6 +43,86 @@ export default function EditArticlePage() {
   const [type, setType] = useState("REFLECTION");
   const [featured, setFeatured] = useState(false);
   const [published, setPublished] = useState(false);
+
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
+  const [imageCaption, setImageCaption] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function getImageDisplayUrl(value: string) {
+    if (!value) return "";
+
+    return `/api/images?pathname=${encodeURIComponent(value)}`;
+  }
+
+  async function handleImageChange(
+    event: ChangeEvent<HTMLInputElement>
+  ) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setError("");
+    setMessage("");
+
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setUploadingImage(true);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Unable to upload image."
+        );
+      }
+
+      setImageUrl(data.pathname || "");
+      setImagePreview(getImageDisplayUrl(data.pathname || ""));
+      setMessage("Image uploaded successfully.");
+    } catch (error) {
+      console.error(error);
+
+      setImageUrl("");
+      setImagePreview("");
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Unable to upload image."
+      );
+    } finally {
+      setUploadingImage(false);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }
+
+  function removeImage() {
+    setImageUrl("");
+    setImagePreview("");
+    setImageAlt("");
+    setImageCaption("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,6 +159,11 @@ export default function EditArticlePage() {
         setType(loadedArticle.type);
         setFeatured(loadedArticle.featured);
         setPublished(loadedArticle.published);
+
+        setImageUrl(loadedArticle.imageUrl || "");
+        setImageAlt(loadedArticle.imageAlt || "");
+        setImageCaption(loadedArticle.imageCaption || "");
+        setImagePreview(getImageDisplayUrl(loadedArticle.imageUrl || ""));
       } catch (error) {
         console.error(error);
 
@@ -158,6 +246,9 @@ export default function EditArticlePage() {
             genreId,
             featured,
             published: nextPublished,
+            imageUrl: imageUrl.trim() || null,
+            imageAlt: imageAlt.trim() || null,
+            imageCaption: imageCaption.trim() || null,
           }),
         }
       );
@@ -438,6 +529,128 @@ export default function EditArticlePage() {
           </div>
 
 
+          {/* IMAGE */}
+
+          <div className="border-t border-[#d9d6cc] pt-8">
+
+            <p className="mb-5 text-[10px] uppercase tracking-[0.3em] text-[#99948a]">
+              Article image
+            </p>
+
+            {imagePreview ? (
+              <div className="space-y-5">
+
+                <div className="overflow-hidden border border-[#d9d6cc] bg-[#f3f1e9]">
+                  <img
+                    src={imagePreview}
+                    alt={imageAlt || title || "Article image"}
+                    className="block h-auto max-w-full"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      fileInputRef.current?.click()
+                    }
+                    disabled={uploadingImage}
+                    className="border border-[#aaa69c] px-5 py-3 text-[11px] uppercase tracking-[0.2em] transition hover:bg-[#e9e6dc] disabled:opacity-50"
+                  >
+                    {uploadingImage
+                      ? "Uploading..."
+                      : "Change image"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    disabled={uploadingImage}
+                    className="border border-[#c9a9a1] px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-[#75483e] transition hover:bg-[#eee1dc] disabled:opacity-50"
+                  >
+                    Remove image
+                  </button>
+
+                </div>
+
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  fileInputRef.current?.click()
+                }
+                disabled={uploadingImage}
+                className="w-full border border-dashed border-[#aaa69c] px-6 py-12 text-center transition hover:bg-[#e9e6dc] disabled:opacity-50"
+              >
+                <span className="block text-sm uppercase tracking-[0.2em]">
+                  {uploadingImage
+                    ? "Uploading..."
+                    : "Add an image"}
+                </span>
+
+                <span className="mt-3 block text-xs text-[#99948a]">
+                  JPG, PNG, WebP or GIF · maximum 10 MB
+                </span>
+              </button>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+
+            {imagePreview && (
+              <div className="mt-6 space-y-5">
+
+                <div>
+                  <label
+                    htmlFor="imageAlt"
+                    className="mb-3 block text-[10px] uppercase tracking-[0.3em] text-[#99948a]"
+                  >
+                    Alt text
+                  </label>
+
+                  <input
+                    id="imageAlt"
+                    value={imageAlt}
+                    onChange={(event) =>
+                      setImageAlt(event.target.value)
+                    }
+                    placeholder="Describe the image"
+                    className="w-full border-b border-[#aaa69c] bg-transparent px-0 py-3 text-base outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="imageCaption"
+                    className="mb-3 block text-[10px] uppercase tracking-[0.3em] text-[#99948a]"
+                  >
+                    Caption
+                  </label>
+
+                  <input
+                    id="imageCaption"
+                    value={imageCaption}
+                    onChange={(event) =>
+                      setImageCaption(event.target.value)
+                    }
+                    placeholder="Optional caption"
+                    className="w-full border-b border-[#aaa69c] bg-transparent px-0 py-3 text-base outline-none"
+                  />
+                </div>
+
+              </div>
+            )}
+
+          </div>
+
+
           {/* FEATURED */}
 
           <div className="border-t border-[#d9d6cc] pt-8">
@@ -574,3 +787,10 @@ export default function EditArticlePage() {
     </main>
   );
 }
+
+
+
+
+
+
+
