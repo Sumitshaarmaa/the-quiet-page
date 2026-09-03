@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Logo from "@/app/components/Logo";
 
 type Genre = {
   id: string;
@@ -66,9 +67,9 @@ export default function GenresPage() {
     loadGenres();
   }, []);
 
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
   // CREATE GENRE
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
 
   async function createGenre() {
     setError("");
@@ -131,9 +132,9 @@ export default function GenresPage() {
     }
   }
 
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
   // START EDITING
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
 
   function startEditing(genre: Genre) {
     setError("");
@@ -150,9 +151,9 @@ export default function GenresPage() {
     setEditingDescription("");
   }
 
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
   // UPDATE GENRE
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
 
   async function updateGenre(id: string) {
     setError("");
@@ -219,9 +220,9 @@ export default function GenresPage() {
     }
   }
 
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
   // DELETE GENRE
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────
 
   async function deleteGenre(genre: Genre) {
     setError("");
@@ -294,18 +295,7 @@ export default function GenresPage() {
 
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
-          <Link
-            href="/admin"
-            className="group flex items-center gap-3"
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#272622] text-xs transition-transform duration-300 group-hover:rotate-45">
-              T
-            </span>
-
-            <span className="text-[11px] font-medium tracking-[0.28em]">
-              THE QUIET PAGE
-            </span>
-          </Link>
+          <Logo />
 
           <div className="flex items-center gap-6">
 

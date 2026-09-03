@@ -112,12 +112,22 @@ export default async function PostPage({ params }: Props) {
 
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
+          {/* LOGO */}
+
           <Link
             href="/"
-            className="text-[11px] font-medium tracking-[0.28em]"
+            className="group flex items-center"
+            aria-label="The Quiet Page"
           >
-            THE QUIET PAGE
+            <img
+              src="/main_logo.png"
+              alt="The Quiet Page"
+              className="h-[68px] w-auto object-contain transition-opacity duration-300 group-hover:opacity-75"
+            />
           </Link>
+
+
+          {/* BACK TO GENRE */}
 
           <Link
             href={`/genre/${encodeURIComponent(post.genre.slug)}`}
@@ -173,10 +183,7 @@ export default async function PostPage({ params }: Props) {
 
             <img
               src={imageUrl}
-              alt={
-                post.imageAlt ||
-                post.title
-              }
+              alt={post.imageAlt || post.title}
               className="mx-auto block h-auto w-auto max-w-full"
             />
 
@@ -243,9 +250,3 @@ export default async function PostPage({ params }: Props) {
     </main>
   );
 }
-
-
-
-
-
-

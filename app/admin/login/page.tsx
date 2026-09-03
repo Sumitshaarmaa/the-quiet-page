@@ -4,6 +4,8 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import Logo from "@/app/components/Logo";
+
 export default function AdminLoginPage() {
   const router = useRouter();
 
@@ -56,18 +58,7 @@ export default function AdminLoginPage() {
       <header className="border-b border-[#dedbd2]">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
-          <Link
-            href="/"
-            className="group flex items-center gap-3"
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#272622] text-xs transition-transform duration-300 group-hover:rotate-45">
-              T
-            </span>
-
-            <span className="text-[11px] font-medium tracking-[0.28em]">
-              THE QUIET PAGE
-            </span>
-          </Link>
+          <Logo />
 
           <Link
             href="/"

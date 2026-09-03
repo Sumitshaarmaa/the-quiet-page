@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import Logo from "@/app/components/Logo";
+
 type Genre = {
   id: string;
   name: string;
@@ -163,7 +165,9 @@ export default function EditArticlePage() {
         setImageUrl(loadedArticle.imageUrl || "");
         setImageAlt(loadedArticle.imageAlt || "");
         setImageCaption(loadedArticle.imageCaption || "");
-        setImagePreview(getImageDisplayUrl(loadedArticle.imageUrl || ""));
+        setImagePreview(
+          getImageDisplayUrl(loadedArticle.imageUrl || "")
+        );
       } catch (error) {
         console.error(error);
 
@@ -340,12 +344,7 @@ export default function EditArticlePage() {
 
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
 
-          <Link
-            href="/admin/articles"
-            className="text-[12px] uppercase tracking-[0.28em]"
-          >
-            The Quiet Page
-          </Link>
+          <Logo />
 
           <Link
             href="/admin/articles"
@@ -538,14 +537,17 @@ export default function EditArticlePage() {
             </p>
 
             {imagePreview ? (
+
               <div className="space-y-5">
 
                 <div className="overflow-hidden border border-[#d9d6cc] bg-[#f3f1e9]">
+
                   <img
                     src={imagePreview}
                     alt={imageAlt || title || "Article image"}
                     className="block h-auto max-w-full"
                   />
+
                 </div>
 
                 <div className="flex flex-wrap gap-3">
@@ -575,7 +577,9 @@ export default function EditArticlePage() {
                 </div>
 
               </div>
+
             ) : (
+
               <button
                 type="button"
                 onClick={() =>
@@ -584,6 +588,7 @@ export default function EditArticlePage() {
                 disabled={uploadingImage}
                 className="w-full border border-dashed border-[#aaa69c] px-6 py-12 text-center transition hover:bg-[#e9e6dc] disabled:opacity-50"
               >
+
                 <span className="block text-sm uppercase tracking-[0.2em]">
                   {uploadingImage
                     ? "Uploading..."
@@ -593,7 +598,9 @@ export default function EditArticlePage() {
                 <span className="mt-3 block text-xs text-[#99948a]">
                   JPG, PNG, WebP or GIF · maximum 10 MB
                 </span>
+
               </button>
+
             )}
 
             <input
@@ -605,9 +612,11 @@ export default function EditArticlePage() {
             />
 
             {imagePreview && (
+
               <div className="mt-6 space-y-5">
 
                 <div>
+
                   <label
                     htmlFor="imageAlt"
                     className="mb-3 block text-[10px] uppercase tracking-[0.3em] text-[#99948a]"
@@ -624,9 +633,11 @@ export default function EditArticlePage() {
                     placeholder="Describe the image"
                     className="w-full border-b border-[#aaa69c] bg-transparent px-0 py-3 text-base outline-none"
                   />
+
                 </div>
 
                 <div>
+
                   <label
                     htmlFor="imageCaption"
                     className="mb-3 block text-[10px] uppercase tracking-[0.3em] text-[#99948a]"
@@ -643,9 +654,11 @@ export default function EditArticlePage() {
                     placeholder="Optional caption"
                     className="w-full border-b border-[#aaa69c] bg-transparent px-0 py-3 text-base outline-none"
                   />
+
                 </div>
 
               </div>
+
             )}
 
           </div>
@@ -787,10 +800,3 @@ export default function EditArticlePage() {
     </main>
   );
 }
-
-
-
-
-
-
-

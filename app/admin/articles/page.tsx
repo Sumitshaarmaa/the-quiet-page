@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifySession } from "@/lib/auth";
 
+import Logo from "@/app/components/Logo";
 import DeleteArticleButton from "./DeleteArticleButton";
 
 function formatDate(date: Date) {
@@ -16,9 +17,9 @@ function formatDate(date: Date) {
 }
 
 export default async function ArticlesPage() {
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
   // AUTHENTICATION
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
 
   const cookieStore = await cookies();
 
@@ -36,9 +37,9 @@ export default async function ArticlesPage() {
     redirect("/admin/login");
   }
 
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
   // LOAD ARTICLES
-  // ─────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
 
   const posts = await prisma.post.findMany({
     orderBy: {
@@ -67,20 +68,7 @@ export default async function ArticlesPage() {
 
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
-          <Link
-            href="/admin"
-            className="group flex items-center gap-3"
-          >
-
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#272622] text-xs transition-transform duration-300 group-hover:rotate-45">
-              T
-            </span>
-
-            <span className="text-[11px] font-medium tracking-[0.28em]">
-              THE QUIET PAGE
-            </span>
-
-          </Link>
+          <Logo />
 
           <div className="flex items-center gap-6">
 

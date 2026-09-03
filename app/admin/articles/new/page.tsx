@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import Logo from "@/app/components/Logo";
+
 type Genre = {
   id: string;
   name: string;
@@ -273,12 +275,7 @@ export default function NewArticlePage() {
 
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
 
-          <Link
-            href="/admin"
-            className="text-[12px] uppercase tracking-[0.28em]"
-          >
-            The Quiet Page
-          </Link>
+          <Logo />
 
           <Link
             href="/admin/articles"

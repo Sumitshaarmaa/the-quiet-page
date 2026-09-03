@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import Logo from "@/app/components/Logo";
 
 type Props = {
   params: Promise<{
@@ -53,18 +54,7 @@ export default async function GenrePage({ params }: Props) {
 
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
-          <Link
-            href="/"
-            className="group flex items-center gap-3"
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#272622] text-xs transition-transform duration-300 group-hover:rotate-45">
-              T
-            </span>
-
-            <span className="text-[11px] font-medium tracking-[0.28em]">
-              THE QUIET PAGE
-            </span>
-          </Link>
+          <Logo />
 
           <div className="flex items-center gap-6">
 
@@ -72,7 +62,7 @@ export default async function GenrePage({ params }: Props) {
               href="/"
               className="text-sm text-[#77736a] transition-colors hover:text-[#272622]"
             >
-              ← Home
+              Home
             </Link>
 
             <Link

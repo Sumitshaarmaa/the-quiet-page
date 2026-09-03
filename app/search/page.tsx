@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
+import Logo from "@/app/components/Logo";
+
 type SearchPost = {
   id: string;
   title: string;
@@ -85,20 +87,10 @@ export default function SearchPage() {
 
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
-          <Link
-            href="/"
-            className="group flex items-center gap-3"
-          >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#272622] text-xs transition-transform duration-300 group-hover:rotate-45">
-              T
-            </span>
-
-            <span className="text-[11px] font-medium tracking-[0.28em]">
-              THE QUIET PAGE
-            </span>
-          </Link>
+          <Logo />
 
           <nav className="flex items-center gap-6">
+
             <Link
               href="/"
               className="text-sm text-[#77736a] transition-colors hover:text-[#272622]"
@@ -112,6 +104,7 @@ export default function SearchPage() {
             >
               ← Back
             </Link>
+
           </nav>
 
         </div>
@@ -149,6 +142,7 @@ export default function SearchPage() {
         >
 
           <div className="flex-1 border-b border-[#aaa59a]">
+
             <input
               type="search"
               value={query}
@@ -159,6 +153,7 @@ export default function SearchPage() {
               autoFocus
               className="w-full bg-transparent px-1 py-5 text-lg outline-none placeholder:text-[#aaa59a]"
             />
+
           </div>
 
           <button

@@ -50,17 +50,18 @@ export default async function Home() {
 
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
 
+          {/* LOGO */}
+
           <Link
             href="/"
-            className="group flex items-center gap-3"
+            className="group flex items-center"
+            aria-label="The Quiet Page"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#272622] text-xs transition-transform duration-300 group-hover:rotate-45">
-              T
-            </span>
-
-            <span className="text-[11px] font-medium tracking-[0.28em]">
-              THE QUIET PAGE
-            </span>
+            <img
+              src="/main_logo.png"
+              alt="The Quiet Page"
+              className="h-[68px] w-auto object-contain transition-opacity duration-300 group-hover:opacity-75"
+            />
           </Link>
 
 
