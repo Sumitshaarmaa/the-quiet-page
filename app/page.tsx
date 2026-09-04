@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import MobileMenu from "@/app/components/MobileMenu";
+import Logo from "@/app/components/Logo";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -52,40 +53,34 @@ export default async function Home() {
 
           {/* LOGO */}
 
-          <Link
-            href="/"
-            className="group flex items-center"
-            aria-label="The Quiet Page"
-          >
-            <img
-              src="/main_logo.png"
-              alt="The Quiet Page"
-              className="h-[68px] w-auto object-contain transition-opacity duration-300 group-hover:opacity-75"
-            />
-          </Link>
+          <Logo />
 
 
           {/* DESKTOP NAVIGATION */}
 
-          <nav className="hidden items-center gap-10 md:flex">
+          <nav className="hidden items-center md:flex">
 
             <a
               href="#featured"
-              className="text-sm text-[#77736a] transition-colors hover:text-[#272622]"
+              className="px-5 text-[11px] uppercase tracking-[0.16em] text-[#77736a] transition-colors hover:text-[#272622]"
             >
               Writings
             </a>
 
+            <span className="h-3 w-px bg-[#d5d1c7]" />
+
             <a
               href="#genres"
-              className="text-sm text-[#77736a] transition-colors hover:text-[#272622]"
+              className="px-5 text-[11px] uppercase tracking-[0.16em] text-[#77736a] transition-colors hover:text-[#272622]"
             >
               Notebook
             </a>
 
+            <span className="h-3 w-px bg-[#d5d1c7]" />
+
             <a
               href="#about"
-              className="text-sm text-[#77736a] transition-colors hover:text-[#272622]"
+              className="px-5 text-[11px] uppercase tracking-[0.16em] text-[#77736a] transition-colors hover:text-[#272622]"
             >
               About
             </a>
@@ -102,7 +97,7 @@ export default async function Home() {
             <Link
               href="/search"
               aria-label="Search"
-              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#d5d1c7] text-lg text-[#77736a] transition-all hover:border-[#272622] hover:text-[#272622] md:flex"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#d5d1c7] text-lg text-[#77736a] transition-all duration-300 hover:border-[#272622] hover:text-[#272622] md:flex"
             >
               ⌕
             </Link>
